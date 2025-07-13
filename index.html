@@ -119,7 +119,7 @@
       document.getElementById('resultado').innerText = resultado;
 
       const dataHora = new Date().toLocaleString('pt-BR');
-      const historicoTexto = `🕓 ${dataHora} — Valor bem: R$${valorBem}, Entrada: R$${entrada}, Juros: ${juros}%, Contrato: R$${contrato}, Parcelas: ${vezes} → ${resultado}`;
+      const historicoTexto = `🕓 ${dataHora} — Valor bem: R$${valorBem}, Entrada: R$${entrada}, Juros: ${juros.toFixed(2)}%, Contrato: R$${contrato}, Parcelas: ${vezes} → ${resultado}`;
       const p = document.createElement("p");
       p.innerText = historicoTexto;
       document.getElementById("historico").prepend(p);
