@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simulador de Financiamento - Magda Motos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f0f4f8;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header img {
+      max-width: 120px;
+    }
+    h2 {
+      color: #333;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-shadow: 1px 1px 4px rgba(0,0,0,0.1);
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #resultado, #historico {
+      margin-top: 20px;
+      font-size: 16px;
+      background: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+      border: 1px solid #dce1e7;
+    }
+    #resultado {
+      background-color: #e7f4ff;
+      color: #003366;
+      font-weight: bold;
+      text-align: center;
+      font-size: 18px;
+    }
+    #historico {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="logo.PNG" alt="Logo Magda Motos">
+    <h2>Simulador de Financiamento - Magda Motos</h2>
+  </header>
+
+  <label>Valor do bem (R$):</label>
+  <input type="text" id="valorBem" placeholder="Ex: 50000">
+
+  <label>Valor da entrada (R$):</label>
+  <input type="text" id="entrada" placeholder="Ex: 5000">
+
+  <label>Porcentagem de juros (%):</label>
+  <input type="text" id="juros" placeholder="Ex: 2,5">
+
+  <label>Valor do contrato (R$):</label>
+  <input type="text" id="contrato" placeholder="Ex: 1500">
+
+  <label>Quantidade de parcelas:</label>
+  <input type="text" id="vezes" placeholder="Ex: 12">
+
+  <button id="calcularBtn">Calcular Parcelas</button>
+  <button id="limparBtn" style="background-color:#dc3545; margin-top:10px;">Limpar Dados</button>
+  <button onclick="limparHistorico()" style="background-color:#6c757d; color:white; margin-top:10px;">Limpar Histórico</button>
+
+  <div id="resultado"></div>
+
+  <h3>Histórico de Simulações</h3>
+  <div id="historico"></div>
+
+  <script>
+    function formatarMoeda(valor) {
+      return "R$ " + valor.toFixed(2).replace('.', ',');
+    }
+
+    window.onload = function() {
+      const historicoSalvo = localStorage.getItem("historicoSimulacoes");
+      if (historicoSalvo) {
+        document.getElementById("historico").innerHTML = historicoSalvo;
+      }
+    };
+
+    document.getElementById("calcularBtn").addEventListener("click", function() {
+      const campos = ['valorBem', 'entrada', 'juros', 'contrato', 'vezes'];
+      for (let id of campos) {
+        let val = document.getElementById(id).value.trim().replace(',', '.');
+        if (isNaN(val) || val === '') {
+          alert("Por favor, insira apenas números válidos em todos os campos.");
+          return;
+        }
+      }
+
+      const valorBem = parseFloat(document.getElementById('valorBem').value.trim().replace(',', '.')) || 0;
+      const entrada = parseFloat(document.getElementById('entrada').value.trim().replace(',', '.')) || 0;
+      const juros = parseFloat(document.getElementById('juros').value.trim().replace(',', '.')) || 0;
+      const contrato = parseFloat(document.getElementById('contrato').value.trim().replace(',', '.')) || 0;
+      const vezes = parseInt(document.getElementById('vezes').value.trim()) || 1;
+
+      let remanescente = (valorBem - entrada) + contrato;
+      remanescente += (remanescente * ((juros * vezes) / 100));
+      const parcela = remanescente / vezes;
+
+      const resultado = `${vezes}x de ${formatarMoeda(parcela)}`;
+      document.getElementById('resultado').innerText = resultado;
+
+      const dataHora = new Date().toLocaleString('pt-BR');
+      const historicoTexto = `
+        <p>
+          <strong>🕓 ${dataHora}</strong><br>
+          Valor do bem: ${formatarMoeda(valorBem)}<br>
+          Entrada: ${formatarMoeda(entrada)}<br>
+          Juros: ${juros.toFixed(2)}%<br>
+          Contrato: ${formatarMoeda(contrato)}<br>
+          Parcelas: ${vezes} → <strong>${resultado}</strong>
+        </p><hr>
+      `;
+      const div = document.createElement("div");
+      div.innerHTML = historicoTexto;
+      document.getElementById("historico").prepend(div);
+      localStorage.setItem("historicoSimulacoes", document.getElementById("historico").innerHTML);
+    });
+
+    document.getElementById("limparBtn").addEventListener("click", function() {
+      document.getElementById('valorBem').value = '';
+      document.getElementById('entrada').value = '';
+      document.getElementById('juros').value = '';
+      document.getElementById('contrato').value = '';
+      document.getElementById('vezes').value = '';
+      document.getElementById('resultado').innerText = '';
+    });
+
+    function limparHistorico() {
+      if (confirm("Tem certeza que deseja apagar o histórico?")) {
+        localStorage.removeItem("historicoSimulacoes");
+        document.getElementById("historico").innerHTML = '';
+      }
+    }
+  </script>
+
+</body>
+</html>
